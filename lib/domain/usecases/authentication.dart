@@ -12,4 +12,6 @@ class AuthenticationParams {
     required this.user,
     required this.secret
   });
+
+  Map toJson() => {'email': user, 'password': secret};
 }
