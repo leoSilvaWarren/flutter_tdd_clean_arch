@@ -15,16 +15,17 @@ class HttpClientSpy extends Mock implements HttpClient{}
 void main() {
   late RemoteAuthentication sut;
   late HttpClientSpy httpClient;
-  late String url; 
+  late String url;
+  late AuthenticationParams params;
 
   setUp((){
     httpClient = HttpClientSpy();
-    url = faker.internet.httpUrl(); 
+    url = faker.internet.httpUrl();
+    params = AuthenticationParams(user: faker.internet.email(), secret: faker.internet.password());
     sut = RemoteAuthentication(httpClient: httpClient, url: url);
   });
 
   test("Should call HttpClient with correct values", () async {
-    final params = AuthenticationParams(user: faker.internet.email(), secret: faker.internet.password());
     await sut.auth(params);
     verify(() => httpClient.request(
       url: url,
@@ -39,8 +40,6 @@ void main() {
   test("Should throw UnexpectedError if HttpClient returns 400", () async {
     when(() => httpClient.request(url: any(named: 'url'), method: any(named: 'method'), body: any(named: 'body')))
     .thenThrow(HttpError.badRequest);
-
-    final params = AuthenticationParams(user: faker.internet.email(), secret: faker.internet.password());
     final future = sut.auth(params);
     expect(future, throwsA(DomainError.unexpected));
   });
